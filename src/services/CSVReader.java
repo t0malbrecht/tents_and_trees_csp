@@ -5,6 +5,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
@@ -41,20 +42,19 @@ public class CSVReader {
         int row = 0;
         try (
                 Reader reader = Files.newBufferedReader(Paths.get(CSV_FILE_PATH_AND_NAME));
-                CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT
-                        .withIgnoreHeaderCase()
-                        .withTrim())
+                CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT)
         ) {
-            Cell[][] cells = new Cell[csvParser.getRecords().size()][csvParser.getRecords().get(0).size()];
-            for (CSVRecord csvRecord : csvParser) {
+            ArrayList<CSVRecord> records = (ArrayList<CSVRecord>) csvParser.getRecords();
+            cells = new Cell[records.size()-1][records.get(0).size()-1];
+            for (CSVRecord csvRecord : records) {
                 if(row == 0){
-                    for(int i=0; i<csvRecord.size(); i++){
+                    for(int i=1; i<csvRecord.size(); i++){
                         columnsTents.add(Integer.parseInt(csvRecord.get(i)));
                     }
                 }else{
                     rowTents.add(Integer.parseInt(csvRecord.get(0)));
                     for(int i=1; i<csvRecord.size(); i++){
-                        cells[row][i-1] = new Cell(csvRecord.get(i).equals("t"), row, i-1);
+                        cells[row-1][i-1] = new Cell(csvRecord.get(i).equals("t"), row-1, i-1);
                     }
                 }
                 row++;
