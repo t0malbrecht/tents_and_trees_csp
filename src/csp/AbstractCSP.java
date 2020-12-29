@@ -7,5 +7,5 @@ package csp;
  *  3. Use general solution strategy (seperated from model)
  */
 public abstract class AbstractCSP {
-    public abstract boolean satfisfied();
+
 }

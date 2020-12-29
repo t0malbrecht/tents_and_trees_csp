@@ -1,5 +1,11 @@
 package csp;
 
+import tentsAndTrees.Cell;
+import tentsAndTrees.Grid;
+
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Row-Constraint: (There can only be x-trees in tree)
  * Column-Constraint: (There can only be x-trees in column)
@@ -8,5 +14,8 @@ package csp;
  * EachTentIsAttachedToOneTree-Constraint: (So there as as many tents as there are trees)
  * OneTreePerTent: (A tree might be next to two tents, but is only connected to one)
  */
-public class AbstractConstraint {
+public abstract class AbstractConstraint {
+
+    public abstract boolean isConsistent(Map<Cell, Integer> assignments, Grid grid);
+
 }

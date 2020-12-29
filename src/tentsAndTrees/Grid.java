@@ -1,17 +1,21 @@
-package csp;
+package tentsAndTrees;
+
+import csp.AbstractConstraint;
+import tentsAndTrees.constraints.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 
 public class Grid {
     private ArrayList<Integer> columnsTents;
     private ArrayList<Integer> rowTents;
+
     private Cell[][] cells;
     private ArrayList<Cell> cellsWithTrees = new ArrayList<>();
     private ArrayList<Cell> cellsWithoutTrees = new ArrayList<>();
     private ArrayList<Cell> openCells;
+
+    private AbstractConstraint[] constraints;
 
     public Grid(Cell[][] cells, ArrayList<Integer> columnsTents, ArrayList<Integer> rowTents){
         this.cells = cells;
@@ -20,10 +24,12 @@ public class Grid {
         setCellsWithTrees();
         setCellsWithoutTrees();
         initiallySetDomains();
-        openCells = new ArrayList<>(cellsWithoutTrees);
         setVhdNeighborsForCells();
+        openCells = new ArrayList<>(cellsWithoutTrees);
+        constraints = new AbstractConstraint[] {new columnConstraint(), new EveryTreeHasATentConstraint(), new rowConstraint(), new TentsCannotBePlacedNextToEachotherConstraint(), new EveryTentNeedsATreeConstraint()};
     }
-    public void startSolvingMCV(){
+
+    /**public void startSolvingMCV(){
         ArrayList<Cell> filteredList = new ArrayList<>(openCells);
         filteredList.removeIf(obj -> obj.getDomainSize() == 1);
         while(filteredList.size() > 0){
@@ -34,7 +40,7 @@ public class Grid {
             filteredList = new ArrayList<>(openCells);
             filteredList.removeIf(obj -> obj.getDomainSize() == 1);
         }
-    }
+    }**/
 
     private void initiallySetDomains(){
         for(Cell cell: cellsWithTrees){
@@ -52,17 +58,16 @@ public class Grid {
                 tmp.add(cells[row][col+1]);
 
             ArrayList<Cell> vdNeighborsWithoutTrees = new ArrayList<Cell>(tmp);
-            cell.setVdNeighborsWithoutTrees(vdNeighborsWithoutTrees);
-            System.out.println(tmp.size());
+            vdNeighborsWithoutTrees.removeIf(Cell::isTree);
+            cell.setHvNeighborsWithoutTrees(vdNeighborsWithoutTrees);
             tmp.removeIf(obj -> !obj.isTree());
-            System.out.println(tmp.size());
+
             if(tmp.size() > 0){
-                cell.initiallySetDomains(new int[]{0, 1});
                 cell.setTrees(tmp);
             }else{
-                cell.initiallySetDomains(new int[]{0});
                 cell.setTrees(null);
             }
+            cell.initiallySetDomains(new int[] {0,1});
         }
     }
 
@@ -82,7 +87,7 @@ public class Grid {
     }
 
     private void setVhdNeighborsForCells(){
-        for(Cell cell: openCells){
+        for(Cell cell: cellsWithoutTrees){
             ArrayList<Cell> tmp = new ArrayList<>();
             int row = cell.getRow();
             int col = cell.getCol();
@@ -110,6 +115,31 @@ public class Grid {
             tmp.removeIf(Cell::isTree);
             cell.setHvdNeighborsWithoutTrees(tmp);
         }
+    }
+
+    //Getter and Setter
+    public ArrayList<Cell> getOpenCells() {
+        return openCells;
+    }
+
+    public void setOpenCells(ArrayList<Cell> openCells) {
+        this.openCells = openCells;
+    }
+
+    public ArrayList<Integer> getColumnsTents() {
+        return columnsTents;
+    }
+
+    public ArrayList<Integer> getRowTents() {
+        return rowTents;
+    }
+
+    public Cell[][] getCells() {
+        return cells;
+    }
+
+    public AbstractConstraint[] getConstraints() {
+        return constraints;
     }
 
 

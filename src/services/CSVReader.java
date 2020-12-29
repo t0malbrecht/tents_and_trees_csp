@@ -1,18 +1,15 @@
 package services;
 
-import csp.Cell;
+import tentsAndTrees.Cell;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.*;
 
 public class CSVReader {
     private static String CSV_FILE_PATH = "./ressources/tents_and_trees_puzzles/";
