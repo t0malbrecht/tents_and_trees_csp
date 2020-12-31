@@ -9,7 +9,6 @@ import java.util.Arrays;
 public class Grid {
     private ArrayList<Integer> columnsTents;
     private ArrayList<Integer> rowTents;
-
     private Cell[][] cells;
     private ArrayList<Cell> cellsWithTrees = new ArrayList<>();
     private ArrayList<Cell> cellsWithoutTrees = new ArrayList<>();
@@ -50,11 +49,11 @@ public class Grid {
 
             if(!(row-1 < 0))
                 tmp.add(cells[row-1][col]);
-            if(!(row+1 > rowTents.size()-1))
+            if(!(row+1 > cells.length-1))
                 tmp.add(cells[row+1][col]);
-            if(col > 1)
+            if(col > 0)
                 tmp.add(cells[row][col-1]);
-            if(col < cells.length)
+            if(col < cells[0].length-1)
                 tmp.add(cells[row][col+1]);
 
             ArrayList<Cell> vdNeighborsWithoutTrees = new ArrayList<Cell>(tmp);
@@ -94,22 +93,22 @@ public class Grid {
 
             if(!(row-1 < 0)){
                 tmp.add(cells[row-1][col]);
-                if(col > 1)
+                if(col > 0)
                     tmp.add(cells[row-1][col-1]);
-                if(col < cells.length)
+                if(col < cells[0].length-1)
                     tmp.add(cells[row-1][col+1]);
 
             }
-            if(!(row+1 > rowTents.size()-1)){
+            if(!(row+1 > cells.length-1)){
                 tmp.add(cells[row+1][col]);
-                if(col > 1)
+                if(col > 0)
                     tmp.add(cells[row+1][col-1]);
-                if(col < cells.length)
+                if(col < cells[0].length-1)
                     tmp.add(cells[row+1][col+1]);
             }
-            if(col > 1)
+            if(col > 0)
                 tmp.add(cells[row][col-1]);
-            if(col < cells.length)
+            if(col < cells[0].length-1)
                 tmp.add(cells[row][col+1]);
 
             tmp.removeIf(Cell::isTree);

@@ -4,16 +4,19 @@ import tentsAndTrees.Cell;
 import tentsAndTrees.Grid;
 
 import java.util.*;
+import java.util.logging.Logger;
 
-public class Backtracing extends AbstractCSP{
+public class Backtracing{
     private ArrayList<Cell> initialOpenCells;
     private ArrayList<Cell> currentOpenCells;
     private Assignment initialAssignment;
-    int counter = 0;
+    private int counter = 0;
+    private int depth = -1;
+
 
     public Backtracing(Grid grid){
         this.initialOpenCells = grid.getOpenCells();
-        this.currentOpenCells = initialOpenCells;
+        this.currentOpenCells = new ArrayList<>(initialOpenCells);
         initialAssignment = new Assignment(grid, new HashMap<>());
     }
 
@@ -22,7 +25,8 @@ public class Backtracing extends AbstractCSP{
         if(result == null){
             System.out.println("No Solution found");
         }else{
-            System.out.println("Hmmm");
+            result.printField();
+            System.out.println("WIN");
             //for (Cell key : result.getAssignments().keySet()) {
             //    System.out.println(key+" "+result.getAssignments().get(key));
             //}
@@ -30,40 +34,54 @@ public class Backtracing extends AbstractCSP{
     }
 
     public Assignment chronologicalBacktracking(Assignment currentAssigment){
-        if(counter == 10)
-            return null;
-        counter++;
-        System.out.println(counter + "Method Called");
-        System.out.println(currentAssigment);
-        HashMap<Cell, Integer> savedDomains = new HashMap<>();
-        if(currentAssigment.isComplete(initialOpenCells))
+        depth++;
+        System.out.println(" Tiefe!!!: "+depth);
+        if(currentAssigment.isComplete(initialOpenCells)){
+            System.out.println("WIN"+counter);
             return currentAssigment;
+        }
         Cell chosenVariable = chooseNonAssignedVariable();
         ArrayList<Integer> domain = chosenVariable.getDomain();
+        ArrayList<Integer> savedDomains = new ArrayList<>();
         while(domain.size() > 0){
+            counter++;
             Integer chosenValue = chooseValue(domain);
             Assignment newAssignment = new Assignment(currentAssigment);
             newAssignment.setAssignments(chosenVariable, chosenValue);
+            System.out.println("Zug: "+counter);
+            System.out.println("Set: "+"["+chosenVariable.getRow()+";"+chosenVariable.getCol()+"]"+" Domain:"+chosenVariable.getDomain()+" Choosen:"+chosenValue);
             if(newAssignment.isConsistent()){
                 Assignment result = chronologicalBacktracking(newAssignment);
-                if(result != null)
+                if(result != null){
                     return result;
+                }else{
+                    savedDomains.add(chosenValue);
+                    System.out.println("PUT IN"+savedDomains);
+                    chosenVariable.removeOptionFromDomains(chosenValue);
+                }
             }else{
-                savedDomains.put(chosenVariable, chosenValue);
+                savedDomains.add(chosenValue);
+                System.out.println("PUT IN"+savedDomains);
                 chosenVariable.removeOptionFromDomains(chosenValue);
             }
         }
         if(savedDomains.size() > 0){
-            for(Cell key : savedDomains.keySet()){
-                key.addOptionToDomains(savedDomains.get(key));
+            for(Integer tmp : savedDomains){
+                chosenVariable.addOptionToDomains(tmp);
             }
             savedDomains.clear();
         }
-        System.out.println("Return null");
+        currentOpenCells.add(chosenVariable);
+        depth--;
+        System.out.println(" Tiefe: "+depth);
         return null;
     }
 
     public Cell chooseNonAssignedVariable(){
+        if(currentOpenCells.size() == 0){
+            System.out.println("AHA");
+            System.exit(0);
+        }
         Cell chosenVariable = currentOpenCells.get(0);
         currentOpenCells.remove(chosenVariable);
         return chosenVariable;

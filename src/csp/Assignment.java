@@ -15,17 +15,16 @@ public class Assignment {
         public Assignment(Grid grid, HashMap<Cell, Integer> assignments){
             this.assignments = assignments;
             this.grid = grid;
-            printField();
         }
 
         public Assignment(Assignment assignments){
-            this.assignments = assignments.assignments;
+            this.assignments = new HashMap<>(assignments.assignments);
             this.grid = assignments.grid;
             this.constraints = assignments.constraints;
-            printField();
         }
 
         public boolean isConsistent() {
+           printField();
            for(AbstractConstraint constraint: grid.getConstraints()){
                if(!constraint.isConsistent(assignments, grid))
                    return false;
@@ -70,6 +69,8 @@ public class Assignment {
                     System.out.print(" T |");
                 else if(assignments.containsKey(cell) && assignments.get(cell) == 1)
                     System.out.print(" Z |");
+                else if(assignments.containsKey(cell) && assignments.get(cell) == 0)
+                    System.out.print("   |");
                 else
                     System.out.print("   |");
             }

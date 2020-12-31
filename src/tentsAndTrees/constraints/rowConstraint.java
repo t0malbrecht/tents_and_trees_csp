@@ -12,7 +12,6 @@ public class rowConstraint extends AbstractConstraint {
 
     @Override
     public boolean isConsistent(Map<Cell, Integer> assignments, Grid grid) {
-        boolean consistent = true;
         ArrayList<Integer> checkedRows = new ArrayList<>();
         for (Cell key : assignments.keySet()) {
             if(checkedRows.contains(key.getRow()))
@@ -27,12 +26,13 @@ public class rowConstraint extends AbstractConstraint {
                     .filter(x -> assignments.get(x.getKey()) == 1) //1 means there is a tent
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-            if(filteredMap.size() > tentsInRow)
-                consistent = false;
+            if(filteredMap.size() > tentsInRow){
+                System.out.println("Row Is not Consistent: Row"+rowOfCell);
+                return false;
+            }
 
         }
-        System.out.println("Row Is Consistent: "+consistent);
-        return consistent;
+        return true;
     }
 
 }

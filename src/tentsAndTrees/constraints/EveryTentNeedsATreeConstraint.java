@@ -8,17 +8,17 @@ import java.util.Map;
 public class EveryTentNeedsATreeConstraint extends AbstractConstraint {
     @Override
     public boolean isConsistent(Map<Cell, Integer> assignments, Grid grid) {
-        boolean consistent = true;
 
         for (Cell key : assignments.keySet()) {
             if(assignments.get(key) != 1)
                 continue;
 
-            if(key.getTrees() == null)
-                consistent = false;
+            if(key.getTrees() == null){
+                System.out.println("EveryTent Is not Consistent: Z"+key.getRow()+" S"+key.getCol());
+                return false;
+            }
         }
-        System.out.println("EveryTent Is Consistent: "+consistent);
-        return consistent;
+        return true;
     }
 
 }
