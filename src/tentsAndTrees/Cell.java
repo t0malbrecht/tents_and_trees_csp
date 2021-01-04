@@ -30,13 +30,6 @@ public class Cell {
         this.domains.add(option);
     }
 
-
-
-
-
-
-
-
     //Getter and Setter
     public void setHvNeighborsWithoutTrees(ArrayList<Cell> hvNeighborsWithoutTrees){
         this.hvNeighborsWithoutTrees = hvNeighborsWithoutTrees;
@@ -52,6 +45,10 @@ public class Cell {
 
     public ArrayList<Cell> getHvdNeighborsWithoutTrees() {
         return hvdNeighborsWithoutTrees;
+    }
+
+    public int getHvdNeighborsWithoutTreesSize() {
+        return hvdNeighborsWithoutTrees.size();
     }
 
     public void initiallySetDomains(int[] domains){

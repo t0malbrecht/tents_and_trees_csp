@@ -24,7 +24,7 @@ public class Assignment {
         }
 
         public boolean isConsistent() {
-           printField();
+           //printField();
            for(AbstractConstraint constraint: grid.getConstraints()){
                if(!constraint.isConsistent(assignments, grid))
                    return false;
@@ -67,10 +67,10 @@ public class Assignment {
             for(Cell cell: grid.getCells()[tmp]){
                 if(cell.isTree())
                     System.out.print(" T |");
-                else if(assignments.containsKey(cell) && assignments.get(cell) == 1)
+                else if(assignments.containsKey(cell) && assignments.get(cell)==  1)
                     System.out.print(" Z |");
                 else if(assignments.containsKey(cell) && assignments.get(cell) == 0)
-                    System.out.print("   |");
+                    System.out.print(" N |");
                 else
                     System.out.print("   |");
             }

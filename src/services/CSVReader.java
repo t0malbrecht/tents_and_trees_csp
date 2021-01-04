@@ -23,7 +23,8 @@ public class CSVReader {
             "tents_trees_7.csv",
             "tents_trees_8.csv",
             "tents_trees_9.csv",
-            "tents_trees_10.csv"};
+            "tents_trees_10.csv",
+            "20x20.csv"};
     private static String CSV_FILE_PATH_AND_NAME;
     private static ArrayList<Integer> columnsTents;
     private static ArrayList<Integer> rowTents;

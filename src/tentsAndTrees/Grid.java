@@ -22,24 +22,21 @@ public class Grid {
         this.rowTents = rowTents;
         setCellsWithTrees();
         setCellsWithoutTrees();
-        initiallySetDomains();
+        //initiallySetDomains();
+        prefilterSetDomains();
         setVhdNeighborsForCells();
         openCells = new ArrayList<>(cellsWithoutTrees);
+        openCells.removeIf(obj -> obj.getDomain().size() == 1);; // reduce Size of Variables
         constraints = new AbstractConstraint[] {new columnConstraint(), new EveryTreeHasATentConstraint(), new rowConstraint(), new TentsCannotBePlacedNextToEachotherConstraint(), new EveryTentNeedsATreeConstraint()};
     }
 
-    /**public void startSolvingMCV(){
+    public void removeVariablesWithOnlyOneDomain(){
         ArrayList<Cell> filteredList = new ArrayList<>(openCells);
-        filteredList.removeIf(obj -> obj.getDomainSize() == 1);
-        while(filteredList.size() > 0){
-            for(Cell cell: filteredList){
-                cell.setSet();
+        filteredList.removeIf(obj -> obj.getDomain().size() == 1);
+        for(Cell cell: filteredList){
                 openCells.remove(cell);
-            }
-            filteredList = new ArrayList<>(openCells);
-            filteredList.removeIf(obj -> obj.getDomainSize() == 1);
         }
-    }**/
+    }
 
     private void initiallySetDomains(){
         for(Cell cell: cellsWithTrees){
@@ -68,6 +65,37 @@ public class Grid {
             }
             cell.initiallySetDomains(new int[] {0,1});
         }
+    }
+
+
+      private void prefilterSetDomains(){
+              for(Cell cell: cellsWithTrees){
+                  ArrayList<Cell> tmp = new ArrayList<>();
+                  int row = cell.getRow();
+                  int col = cell.getCol();
+
+                  if(!(row-1 < 0))
+                  tmp.add(cells[row-1][col]);
+                  if(!(row+1 > cells.length-1))
+                      tmp.add(cells[row+1][col]);
+                  if(col > 0)
+                      tmp.add(cells[row][col-1]);
+                  if(col < cells[0].length-1)
+                      tmp.add(cells[row][col+1]);
+
+                  ArrayList<Cell> vdNeighborsWithoutTrees = new ArrayList<Cell>(tmp);
+                  vdNeighborsWithoutTrees.removeIf(Cell::isTree);
+                  cell.setHvNeighborsWithoutTrees(vdNeighborsWithoutTrees);
+                  tmp.removeIf(obj -> !obj.isTree());
+
+                  if(tmp.size() > 0){
+                      cell.initiallySetDomains(new int[]{0, 1});
+                      cell.setTrees(tmp);
+                  }else{
+                      cell.initiallySetDomains(new int[]{0});
+                      cell.setTrees(null);
+                  }
+              }
     }
 
     private void setCellsWithTrees(){
