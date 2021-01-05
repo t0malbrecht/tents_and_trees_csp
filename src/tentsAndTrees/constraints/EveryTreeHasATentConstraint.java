@@ -40,8 +40,10 @@ public class EveryTreeHasATentConstraint extends AbstractConstraint {
                 Map<Cell, Integer> assignedVdNeighborsWithoutTreeWhichHaveSetTent = assignedVhNeighborsWithoutTree.entrySet().stream()
                         .filter(x -> assignments.get(x.getKey()) == 1) //1 means there is a tent
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-                if (assignedVdNeighborsWithoutTreeWhichHaveSetTent.size() < 1)
+                if (assignedVdNeighborsWithoutTreeWhichHaveSetTent.size() < 1){
+                    System.out.println("EveryTree Is not Consistent: Z" + tree.getRow() + " S" + tree.getCol());
                     return false;
+                }
 
                 //Filter assigned neighbors to get all neigbhors which are a tent and which havent any other trees as neighbors
                 Map<Cell, Integer> assignedVdNeighborsWithoutTreeWhichHaveSetTentAndNoOtherTreeAsNeighbor = assignedVdNeighborsWithoutTreeWhichHaveSetTent.entrySet().stream()

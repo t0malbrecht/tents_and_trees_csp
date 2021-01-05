@@ -81,6 +81,11 @@ public class Cell {
         return domains;
     }
 
+    public Integer getDomainSize(){
+        return domains.size();
+    }
+
+
     public boolean isSet(){
         return isSet;
     }

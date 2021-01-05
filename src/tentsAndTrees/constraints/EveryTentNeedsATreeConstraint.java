@@ -14,7 +14,7 @@ public class EveryTentNeedsATreeConstraint extends AbstractConstraint {
                 continue;
 
             if(key.getTrees() == null){
-                System.out.println("EveryTent Is not Consistent: Z"+key.getRow()+" S"+key.getCol());
+                //System.out.println("EveryTent Is not Consistent: Z"+key.getRow()+" S"+key.getCol());
                 return false;
             }
         }

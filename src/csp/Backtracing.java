@@ -40,7 +40,8 @@ public class Backtracing{
     public Assignment chronologicalBacktracking(Assignment currentAssigment){
         depth++;
         counter++;
-        System.out.println(" Zug!!!: "+counter);
+        //System.out.println(" Zug!!!: "+counter);
+        //System.out.println(" Zug!!!: "+counter);
         //System.out.println(" Tiefe!!!: "+depth);
         if(currentAssigment.isComplete(initialOpenCells)){
             return currentAssigment;
@@ -51,12 +52,36 @@ public class Backtracing{
         while(domain.size() > 0){
             ArrayList<Pair<Cell, Integer>> savedDomainsForwardChecking = new ArrayList<>();
             counter++;
-            Integer chosenValue = chooseValue(domain, true);
+            Integer chosenValue = chooseValue(domain, false);
             Assignment newAssignment = new Assignment(currentAssigment);
             newAssignment.setAssignments(chosenVariable, chosenValue);
+            if(chosenVariable.getCol() == 0 && chosenVariable.getRow() == 0 && false){
+                System.out.println("TEST"+counter);
+                int sizeofOpenCells = currentOpenCells.size();
+                int sizeofDomains = currentOpenCells.stream().mapToInt(Cell::getDomainSize).sum();
+                System.out.println("Cells =" +sizeofOpenCells+"Domains ="+sizeofDomains);
+                for(Cell zelle: currentOpenCells){
+                    if(zelle.getDomainSize() > 2){
+                        System.out.println("ZELLE"+zelle);
+                    }
+                }
+                newAssignment.printField();
+            }
+            if(chosenVariable.getCol() == 5 && chosenVariable.getRow() == 0 && false){
+                System.out.println("TEST"+counter);
+                int sizeofOpenCells = currentOpenCells.size();
+                int sizeofDomains = currentOpenCells.stream().mapToInt(Cell::getDomainSize).sum();
+                System.out.println("Cells =" +sizeofOpenCells+"Domains ="+sizeofDomains);
+                for(Cell zelle: currentOpenCells){
+                    if(zelle.getDomainSize() > 2){
+                        System.out.println("ZELLE"+zelle);
+                    }
+                }
+                newAssignment.printField();
+            }
             //System.out.println("Zug: "+counter);
             //System.out.println("Set: "+"["+chosenVariable.getRow()+";"+chosenVariable.getCol()+"]"+" Domain:"+chosenVariable.getDomain()+" Choosen:"+chosenValue);
-            if(newAssignment.isConsistent() && forwardChecking(newAssignment, savedDomainsForwardChecking)){
+            if(newAssignment.isConsistent()){
                 Assignment result = chronologicalBacktracking(newAssignment);
                 if(result != null){
                     return result;
@@ -65,6 +90,8 @@ public class Backtracing{
                         for(Pair pair : savedDomainsForwardChecking){
                             Cell cell = (Cell) pair.getKey();
                             cell.addOptionToDomains( (Integer) pair.getValue());
+                            if(cell.getRow() == 1 && cell.getCol() == 16 && cell.getDomainSize() > 2)
+                                System.out.println("UFF"); //TODO: Hier füllt der doppelt auf, das darf logischerweise nicht sein.
                         }
                         savedDomainsForwardChecking.clear();
                     }
@@ -76,6 +103,8 @@ public class Backtracing{
                     for(Pair pair : savedDomainsForwardChecking){
                         Cell cell = (Cell) pair.getKey();
                         cell.addOptionToDomains( (Integer) pair.getValue());
+                        if(cell.getRow() == 1 && cell.getCol() == 16 && cell.getDomainSize() > 2)
+                            System.out.println("UFF");
                     }
                     savedDomainsForwardChecking.clear();
                 }
@@ -87,6 +116,8 @@ public class Backtracing{
             for(Pair pair : savedDomains){
                 Cell cell = (Cell) pair.getKey();
                 cell.addOptionToDomains( (Integer) pair.getValue());
+                if(cell.getDomainSize() > 2)
+                    System.out.println("UFF");
             }
             savedDomains.clear();
         }
@@ -159,8 +190,10 @@ public class Backtracing{
                                 .filter(x -> assignedHvNeighborsOfTree.get(x.getKey()) == 1) //1 means there is a tent
                                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
                         if(tree.getHvNeighborsWithoutTrees().size()-1 == assignedHvNeighborsOfTree.size() && assignedHvNeighborsOfTreeWhichAreATent.size() == 0){
-                            savedDomains.add(new Pair(openCell, 0));
-                            openCell.removeOptionFromDomains(0); // When Cell is the last open Cell next to a tree and no other cell is a tent, then this needs to be a tent
+                            if(openCell.getDomain().contains(0)){
+                                savedDomains.add(new Pair(openCell, 0));
+                                openCell.removeOptionFromDomains(0); // When Cell is the last open Cell next to a tree and no other cell is a tent, then this needs to be a tent
+                            }
                             //TODO: (doesnt checks for one tent which could be for multiple trees)
                         }
                     }
@@ -175,6 +208,16 @@ public class Backtracing{
                 if(assignedHvdNeighborsWhichAreATent.size() > 0){
                     savedDomains.add(new Pair(openCell, 1));
                     openCell.removeOptionFromDomains(1); //when any hvd neighbor is a tent, then this Cell cant be a tent.
+                }
+            }
+
+            if(openCell.getRow() == 1 && openCell.getCol() == 16){
+                List<Pair<Cell, Integer>> debugfilter = savedDomains.stream()
+                        .filter(x -> x.getKey().getCol() == 16)
+                        .filter(x -> x.getKey().getRow() == 1)
+                        .collect(Collectors.toList());
+                if(debugfilter.size() > 0 && openCell.getDomainSize() > 2){
+                    System.out.println(debugfilter);
                 }
             }
 
@@ -208,6 +251,9 @@ public class Backtracing{
             //Least constraining is 0, because a 0 in a Cell doesnt bother the neighbours, but with 2 variables also not really viable
             chosenIndex = domain.indexOf(0);
         }else{
+            if(counter == 2){
+                return domain.indexOf(0);
+            }
             //Is 1 most constraining? Much better performance!
             chosenIndex = domain.indexOf(1);
             //chosenIndex = new Random().nextInt(domain.size());

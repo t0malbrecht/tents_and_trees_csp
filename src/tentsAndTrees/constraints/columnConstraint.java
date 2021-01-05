@@ -29,7 +29,7 @@ public class columnConstraint extends AbstractConstraint {
                     .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
             if(filteredMap.size() > tentsInColumn){
-                System.out.println("Column Is not Consistent: Col"+columnOfCell);
+                //System.out.println("Column Is not Consistent: Col"+columnOfCell);
                 return false;
             }
         }

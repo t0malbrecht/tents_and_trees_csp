@@ -2,6 +2,7 @@ package csp;
 
 import tentsAndTrees.Cell;
 import tentsAndTrees.Grid;
+import tentsAndTrees.constraints.EveryTreeHasATentConstraint;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,8 +27,12 @@ public class Assignment {
         public boolean isConsistent() {
            //printField();
            for(AbstractConstraint constraint: grid.getConstraints()){
-               if(!constraint.isConsistent(assignments, grid))
+               if(!constraint.isConsistent(assignments, grid)){
+                   if(constraint.getClass() == EveryTreeHasATentConstraint.class){
+                       printField();
+                   }
                    return false;
+               }
            }
            return true;
         }
