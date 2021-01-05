@@ -27,7 +27,7 @@ public class rowConstraint extends AbstractConstraint {
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
             if(filteredMap.size() > tentsInRow){
-                //System.out.println("Row Is not Consistent: Row"+rowOfCell);
+                System.out.println("Row Is not Consistent: Row"+rowOfCell);
                 return false;
             }
 

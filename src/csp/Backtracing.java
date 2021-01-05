@@ -39,17 +39,19 @@ public class Backtracing{
 
     public Assignment chronologicalBacktracking(Assignment currentAssigment){
         depth++;
+        counter++;
+        System.out.println(" Zug!!!: "+counter);
         //System.out.println(" Tiefe!!!: "+depth);
         if(currentAssigment.isComplete(initialOpenCells)){
             return currentAssigment;
         }
-        Cell chosenVariable = chooseNonAssignedVariable(2);
+        Cell chosenVariable = chooseNonAssignedVariable(0);
         ArrayList<Integer> domain = chosenVariable.getDomain();
         ArrayList<Pair<Cell, Integer>> savedDomains = new ArrayList<>();
         while(domain.size() > 0){
             ArrayList<Pair<Cell, Integer>> savedDomainsForwardChecking = new ArrayList<>();
             counter++;
-            Integer chosenValue = chooseValue(domain, false);
+            Integer chosenValue = chooseValue(domain, true);
             Assignment newAssignment = new Assignment(currentAssigment);
             newAssignment.setAssignments(chosenVariable, chosenValue);
             //System.out.println("Zug: "+counter);
@@ -89,6 +91,7 @@ public class Backtracing{
             savedDomains.clear();
         }
         currentOpenCells.add(chosenVariable);
+        currentOpenCells.sort(new CellSorter());
         depth--;
         //System.out.println(" Tiefe: "+depth);
         return null;
@@ -175,8 +178,10 @@ public class Backtracing{
                 }
             }
 
-            if(openCell.getDomain().size() == 0)
+            if(openCell.getDomain().size() == 0){
+                //System.out.println("Z:"+openCell.getRow()+" S:"+openCell.getCol()+" FWD-Fail");
                 return false;
+            }
         }
         return true;
     }

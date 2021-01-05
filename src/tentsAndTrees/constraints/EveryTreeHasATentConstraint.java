@@ -76,7 +76,7 @@ public class EveryTreeHasATentConstraint extends AbstractConstraint {
                                 .filter(x -> assignments.get(x.getKey()) == 1) //1 means there is a tent
                                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
                         if (otherTentsAsNeighbors.size() < 2) {
-                            //System.out.println("EveryTree Is not Consistent: Z" + tree.getRow() + " S" + tree.getCol());
+                            System.out.println("EveryTree Is not Consistent: Z" + tree.getRow() + " S" + tree.getCol());
                             return false;
                         }
                     }
