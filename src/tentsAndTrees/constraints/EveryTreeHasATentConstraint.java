@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class EveryTreeHasATentConstraint extends AbstractConstraint {
+    static ArrayList<Cell> checkedCells = new ArrayList<>();
 
     @Override
     public boolean isConsistent(Map<Cell, Integer> assignments, Grid grid) {
@@ -18,7 +19,7 @@ public class EveryTreeHasATentConstraint extends AbstractConstraint {
         ArrayList<Cell> checkedTrees = new ArrayList<>();
 
         for (Cell key : assignments.keySet()) {
-            if(key.getTrees() == null)
+            if (key.getTrees() == null)
                 continue;
             for (Cell tree : key.getTrees()) {
 
@@ -40,8 +41,8 @@ public class EveryTreeHasATentConstraint extends AbstractConstraint {
                 Map<Cell, Integer> assignedVdNeighborsWithoutTreeWhichHaveSetTent = assignedVhNeighborsWithoutTree.entrySet().stream()
                         .filter(x -> assignments.get(x.getKey()) == 1) //1 means there is a tent
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-                if (assignedVdNeighborsWithoutTreeWhichHaveSetTent.size() < 1){
-                    System.out.println("EveryTree Is not Consistent: Z" + tree.getRow() + " S" + tree.getCol());
+                if (assignedVdNeighborsWithoutTreeWhichHaveSetTent.size() < 1) {
+                    //System.out.println("EveryTree Is not Consistent: Z" + tree.getRow() + " S" + tree.getCol());
                     return false;
                 }
 
@@ -58,33 +59,91 @@ public class EveryTreeHasATentConstraint extends AbstractConstraint {
                         .filter(x -> x.getKey().getTrees().size() > 1)
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-                //for each of them, check for every of their trees if they have any unassigned vertical of horizontal neighbors
-                for (Cell cell : assignedVdNeighborsWithoutTreeWhichHaveSetTentAndOtherTreeAsNeighbor.keySet()) {
-                    ArrayList<Cell> tempTrees = new ArrayList<>(cell.getTrees());
-                    tempTrees.remove(tree); //remove tree as it is already checkedW
+                if(assignedVdNeighborsWithoutTreeWhichHaveSetTentAndOtherTreeAsNeighbor.size() == 1){
+                    for(Cell onlyTentOfTreeWhichHasMoreTrees : assignedVdNeighborsWithoutTreeWhichHaveSetTentAndOtherTreeAsNeighbor.keySet()){
+                        ArrayList<Cell> treesToCheck = new ArrayList<>(onlyTentOfTreeWhichHasMoreTrees.getTrees());
+                        treesToCheck.remove(tree);
+                        for(Cell treesOfOnlyTentOfTreeWhichHasMoreTrees: treesToCheck){
+                            Map<Cell, Integer> assignedVhNeighborOfTree2 = assignments.entrySet().stream()
+                                    .filter(x -> x.getKey().getTrees() != null)
+                                    .filter(x -> x.getKey().getTrees().contains(treesOfOnlyTentOfTreeWhichHasMoreTrees))
+                                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-                    for (Cell treeTmp : tempTrees) {
-                        Map<Cell, Integer> assignedVhNeighborsWithoutTree2 = assignments.entrySet().stream()
-                                .filter(x -> x.getKey().getTrees() != null)
-                                .filter(x -> x.getKey().getTrees().contains(treeTmp))
-                                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                            if(treesOfOnlyTentOfTreeWhichHasMoreTrees.getHvNeighborsWithoutTrees().size() > assignedVhNeighborOfTree2.size())
+                                continue;
 
-                        if (treeTmp.getHvNeighborsWithoutTrees().size() > assignedVhNeighborsWithoutTree2.size())
-                            continue;
-
-                        //Check if they have any other tent as neighbor
-                        //TODO: Eigentlich reicht das hier noch nicht, rekursiver aufruf wäre möglich, aber geht das noch einfacher?
-                        Map<Cell, Integer> otherTentsAsNeighbors = assignedVhNeighborsWithoutTree2.entrySet().stream()
-                                .filter(x -> assignments.get(x.getKey()) == 1) //1 means there is a tent
-                                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-                        if (otherTentsAsNeighbors.size() < 2) {
-                            System.out.println("EveryTree Is not Consistent: Z" + tree.getRow() + " S" + tree.getCol());
-                            return false;
+                            Map<Cell, Integer> assignedVhNeighborOfTreeWhichAreTents2 = assignedVhNeighborOfTree2.entrySet().stream()
+                                    .filter(x -> assignments.get(x.getKey()) == 1) //1 means there is a tent
+                                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                            if(assignedVhNeighborOfTreeWhichAreTents2.size() < 2){
+                                return false; //When tree has only one tent as neighbor, then this tent needs to have at lest two tents as neighbors when each of its neighbors are assigned
+                            }
                         }
                     }
+                }
+
+                //for each of them, check for every of their tents if their trees or the trees of the tents of them have tent for itself (recursive)
+                Boolean workedForOneTent = false;
+                for (Cell cell : assignedVdNeighborsWithoutTreeWhichHaveSetTentAndOtherTreeAsNeighbor.keySet()) {
+                    workedForOneTent = recursiveAction(cell, tree, assignments);
+                }
+                if (!workedForOneTent) {
+                    //System.out.println("EveryTree Is not Consistent: Z" + tree.getRow() + " S" + tree.getCol());
+                    return false;
                 }
             }
         }
         return true;
+    }
+
+
+    private boolean recursiveAction(Cell tent, Cell tree, Map<Cell, Integer> assignments) {
+            ArrayList<Cell> treesOfTent = new ArrayList<>(tent.getTrees());
+            treesOfTent.remove(tree); //remove tree as it is already checked
+            for (Cell treeTmp : treesOfTent) {
+                Map<Cell, Integer> assignedVhNeighborOfTree = assignments.entrySet().stream()
+                        .filter(x -> x.getKey().getTrees() != null)
+                        .filter(x -> x.getKey().getTrees().contains(treeTmp))
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+                if (treeTmp.getHvNeighborsWithoutTrees().size() > assignedVhNeighborOfTree.size()) {
+                     //just means that it could be true in future so no constraint violation yet
+                    return true;
+                }
+                Map<Cell, Integer> assignedVhNeighborOfTreeWhichAreTents = assignedVhNeighborOfTree.entrySet().stream()
+                        .filter(x -> assignments.get(x.getKey()) == 1) //1 means there is a tent
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+
+                //Filter assigned neighbors to get all neigbhors which are a tent and which havent any other trees as neighbors
+                Map<Cell, Integer> assignedVdNeighborsWithoutTreeWhichHaveSetTentAndNoOtherTreeAsNeighbor = assignedVhNeighborOfTreeWhichAreTents.entrySet().stream()
+                        .filter(x -> x.getKey().getTrees().size() == 1)
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+                //When there are any, then true, otherwise recursive check the other neighbors
+                if (assignedVdNeighborsWithoutTreeWhichHaveSetTentAndNoOtherTreeAsNeighbor.size() > 0) {
+                    return true;
+                } else {
+                    Map<Cell, Integer> assignedVhNeighborOfTreeWhichAreTentsAndHaveOtherNeighbors = assignedVhNeighborOfTreeWhichAreTents.entrySet().stream()
+                            .filter(x -> x.getKey().getTrees().size() > 1)
+                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+                    Boolean tmp = false;
+                    ArrayList<Cell> addedCells = new ArrayList<>();
+                    for (Cell tent2 : assignedVhNeighborOfTreeWhichAreTentsAndHaveOtherNeighbors.keySet()) {
+                        if(checkedCells.contains(tent2))
+                            continue;
+                        checkedCells.add(tent2);
+                        addedCells.add(tent2);
+                        if(recursiveAction(tent2, treeTmp, assignments)){
+                            tmp = true;
+                        }
+                    }
+                    checkedCells.removeAll(addedCells);
+                    if(tmp)
+                        return true;
+                }
+            }
+        return false;
     }
 }

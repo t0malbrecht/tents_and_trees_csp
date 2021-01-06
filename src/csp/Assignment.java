@@ -28,9 +28,6 @@ public class Assignment {
            //printField();
            for(AbstractConstraint constraint: grid.getConstraints()){
                if(!constraint.isConsistent(assignments, grid)){
-                   if(constraint.getClass() == EveryTreeHasATentConstraint.class){
-                       printField();
-                   }
                    return false;
                }
            }

@@ -12,7 +12,7 @@ public class Backtracing{
     private ArrayList<Cell> initialOpenCells;
     private ArrayList<Cell> currentOpenCells;
     private Assignment initialAssignment;
-    private int counter = 0;
+    public static int counter = 0;
     private int depth = -1;
     private Grid grid;
 
@@ -40,7 +40,7 @@ public class Backtracing{
     public Assignment chronologicalBacktracking(Assignment currentAssigment){
         depth++;
         counter++;
-        //System.out.println(" Zug!!!: "+counter);
+        System.out.println(" Zug!!!: "+counter);
         //System.out.println(" Zug!!!: "+counter);
         //System.out.println(" Tiefe!!!: "+depth);
         if(currentAssigment.isComplete(initialOpenCells)){
@@ -55,59 +55,15 @@ public class Backtracing{
             Integer chosenValue = chooseValue(domain, false);
             Assignment newAssignment = new Assignment(currentAssigment);
             newAssignment.setAssignments(chosenVariable, chosenValue);
-            if(chosenVariable.getCol() == 0 && chosenVariable.getRow() == 0 && false){
-                System.out.println("TEST"+counter);
-                int sizeofOpenCells = currentOpenCells.size();
-                int sizeofDomains = currentOpenCells.stream().mapToInt(Cell::getDomainSize).sum();
-                System.out.println("Cells =" +sizeofOpenCells+"Domains ="+sizeofDomains);
-                for(Cell zelle: currentOpenCells){
-                    if(zelle.getDomainSize() > 2){
-                        System.out.println("ZELLE"+zelle);
-                    }
-                }
-                newAssignment.printField();
-            }
-            if(chosenVariable.getCol() == 5 && chosenVariable.getRow() == 0 && false){
-                System.out.println("TEST"+counter);
-                int sizeofOpenCells = currentOpenCells.size();
-                int sizeofDomains = currentOpenCells.stream().mapToInt(Cell::getDomainSize).sum();
-                System.out.println("Cells =" +sizeofOpenCells+"Domains ="+sizeofDomains);
-                for(Cell zelle: currentOpenCells){
-                    if(zelle.getDomainSize() > 2){
-                        System.out.println("ZELLE"+zelle);
-                    }
-                }
-                newAssignment.printField();
-            }
-            //System.out.println("Zug: "+counter);
-            //System.out.println("Set: "+"["+chosenVariable.getRow()+";"+chosenVariable.getCol()+"]"+" Domain:"+chosenVariable.getDomain()+" Choosen:"+chosenValue);
             if(newAssignment.isConsistent()){
                 Assignment result = chronologicalBacktracking(newAssignment);
                 if(result != null){
                     return result;
                 }else{
-                    if(savedDomainsForwardChecking.size() > 0){
-                        for(Pair pair : savedDomainsForwardChecking){
-                            Cell cell = (Cell) pair.getKey();
-                            cell.addOptionToDomains( (Integer) pair.getValue());
-                            if(cell.getRow() == 1 && cell.getCol() == 16 && cell.getDomainSize() > 2)
-                                System.out.println("UFF"); //TODO: Hier füllt der doppelt auf, das darf logischerweise nicht sein.
-                        }
-                        savedDomainsForwardChecking.clear();
-                    }
                     savedDomains.add(new Pair(chosenVariable, chosenValue));
                     chosenVariable.removeOptionFromDomains(chosenValue);
                 }
             }else{
-                if(savedDomainsForwardChecking.size() > 0){
-                    for(Pair pair : savedDomainsForwardChecking){
-                        Cell cell = (Cell) pair.getKey();
-                        cell.addOptionToDomains( (Integer) pair.getValue());
-                        if(cell.getRow() == 1 && cell.getCol() == 16 && cell.getDomainSize() > 2)
-                            System.out.println("UFF");
-                    }
-                    savedDomainsForwardChecking.clear();
-                }
                 savedDomains.add(new Pair(chosenVariable, chosenValue));
                 chosenVariable.removeOptionFromDomains(chosenValue);
             }
@@ -116,8 +72,6 @@ public class Backtracing{
             for(Pair pair : savedDomains){
                 Cell cell = (Cell) pair.getKey();
                 cell.addOptionToDomains( (Integer) pair.getValue());
-                if(cell.getDomainSize() > 2)
-                    System.out.println("UFF");
             }
             savedDomains.clear();
         }

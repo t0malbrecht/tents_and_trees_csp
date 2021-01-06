@@ -19,8 +19,8 @@ public class TentsCannotBePlacedNextToEachotherConstraint extends AbstractConstr
 
             ArrayList<Cell> hvdNeighborsWithoutTrees = key.getHvdNeighborsWithoutTrees();
             for(Cell neighbor: hvdNeighborsWithoutTrees){
-                if(assignments.containsKey(neighbor)){
-                    if(assignments.get(neighbor) == 1){
+                if(assignments.containsKey(neighbor)) {
+                    if (assignments.get(neighbor) == 1) {
                         //System.out.println("TentsCannot Is not Consistent: Z"+key.getRow()+" S"+key.getCol());
                         return false;
                     }

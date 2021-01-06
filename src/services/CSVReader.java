@@ -24,7 +24,8 @@ public class CSVReader {
             "tents_trees_8.csv",
             "tents_trees_9.csv",
             "tents_trees_10.csv",
-            "20x20.csv"};
+            "20x20.csv",
+            "20x20-solution.csv"};
     private static String CSV_FILE_PATH_AND_NAME;
     private static ArrayList<Integer> columnsTents;
     private static ArrayList<Integer> rowTents;
@@ -53,7 +54,7 @@ public class CSVReader {
                 }else{
                     rowTents.add(Integer.parseInt(csvRecord.get(0)));
                     for(int i=1; i<csvRecord.size(); i++){
-                        cells[row-1][i-1] = new Cell(csvRecord.get(i).equals("t"), row-1, i-1);
+                        cells[row-1][i-1] = new Cell(csvRecord.get(i).equals("t"), row-1, i-1, csvRecord.get(i).equals("Z"));
                     }
                 }
                 row++;

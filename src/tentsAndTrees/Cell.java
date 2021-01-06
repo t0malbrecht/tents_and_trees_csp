@@ -13,12 +13,12 @@ public class Cell {
     private ArrayList<Cell> hvdNeighborsWithoutTrees = new ArrayList<>(); //horizontal, vertical and diagonal neighbors !!!is not set when Cell isTree
     private ArrayList<Cell> trees = new ArrayList<>(); // trees which are horizontally or vertically next to this cell
 
-    public Cell(boolean tree, int row, int col){
+    public Cell(boolean tree, int row, int col, boolean tent){
         this.isTree = tree;
         this.row = row;
         this.col = col;
         this.isSet = false;
-        this.isTent = false;
+        this.isTent = tent;
         this.isNothing = false;
     }
 
