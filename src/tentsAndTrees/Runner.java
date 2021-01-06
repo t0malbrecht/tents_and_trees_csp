@@ -17,10 +17,10 @@ public class Runner {
     public static void main(String[] args){
         Object[] results;
         try {
-            CSVReader.setCsvFilePath(0);
+            CSVReader.setCsvFilePath(11);
             Object[] info = CSVReader.read();
             Grid grid = new Grid((Cell[][]) info[0], (ArrayList<Integer>) info[1], (ArrayList<Integer>) info[2]);
-            /**CSVReader.setCsvFilePath(12);
+            /**CSVReader.setCsvFilePath(13);
             Object[] info2 = CSVReader.read();
             Grid grid2 = new Grid((Cell[][]) info2[0], (ArrayList<Integer>) info2[1], (ArrayList<Integer>) info2[2]);
             ArrayList<Cell> cellsList = new ArrayList<>();
@@ -39,6 +39,7 @@ public class Runner {
             Assignment assignment = new Assignment(grid2, assignments);
             assignment.printField();
             System.out.println(assignment.isConsistent());**/
+
 
 
             Backtracing backtracing = new Backtracing(grid);

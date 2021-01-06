@@ -25,7 +25,8 @@ public class CSVReader {
             "tents_trees_9.csv",
             "tents_trees_10.csv",
             "20x20.csv",
-            "20x20-solution.csv"};
+            "20x20-solution.csv",
+            "0-solution.csv"};
     private static String CSV_FILE_PATH_AND_NAME;
     private static ArrayList<Integer> columnsTents;
     private static ArrayList<Integer> rowTents;

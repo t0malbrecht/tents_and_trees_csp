@@ -50,12 +50,11 @@ public class Backtracing{
         ArrayList<Integer> domain = chosenVariable.getDomain();
         ArrayList<Pair<Cell, Integer>> savedDomains = new ArrayList<>();
         while(domain.size() > 0){
-            ArrayList<Pair<Cell, Integer>> savedDomainsForwardChecking = new ArrayList<>();
             counter++;
             Integer chosenValue = chooseValue(domain, false);
             Assignment newAssignment = new Assignment(currentAssigment);
             newAssignment.setAssignments(chosenVariable, chosenValue);
-            if(newAssignment.isConsistent()){
+            if(newAssignment.isConsistent() && forwardChecking(newAssignment)){
                 Assignment result = chronologicalBacktracking(newAssignment);
                 if(result != null){
                     return result;
@@ -82,15 +81,21 @@ public class Backtracing{
         return null;
     }
 
-    public boolean forwardChecking(Assignment assignment, ArrayList<Pair<Cell, Integer>> savedDomains){
+    public boolean forwardChecking(Assignment assignment){
         ArrayList<Cell> checkedColumns = new ArrayList<>();
         ArrayList<Cell> checkedRows = new ArrayList<>();
         ArrayList<Cell> checkedTrees = new ArrayList<>();
 
-        for(Cell openCell: currentOpenCells){
+        ArrayList<Cell> currentOpenCellsCopy = new ArrayList<>();
+        for(Cell cell: currentOpenCells){
+            Cell newCell = new Cell(cell);
+            currentOpenCellsCopy.add(newCell);
+        }
+
+        for(Cell openCell: currentOpenCells) {
             //Check Column Constraint
-            if(openCell.getDomain().contains(1)){ //When column doesnt contains Option to set Tree then this Constraint has no matter
-                if(!checkedColumns.contains(openCell.getCol())){
+            if (openCell.getDomain().contains(1)) { //When cell doesnt contains Option to set Tree then this Constraint has no matter
+                if (!checkedColumns.contains(openCell.getCol())) {
                     checkedColumns.add(openCell);
                     int columnOfCell = openCell.getCol();
                     int tentsInColumn = grid.getColumnsTents().get(columnOfCell);
@@ -98,20 +103,21 @@ public class Backtracing{
                             .filter(x -> x.getKey().getCol() == columnOfCell)
                             .filter(x -> assignment.getAssignments().get(x.getKey()) == 1) //1 means there is a tent
                             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-                    if(tentsInColumn == filteredMap.size()){
+                    if (tentsInColumn == filteredMap.size()) {
                         List<Cell> openCellsInColumn = currentOpenCells.stream()
                                 .filter(x -> x.getCol() == columnOfCell)
                                 .collect(Collectors.toList());
-                        for(Cell openCellInColumn: openCellsInColumn){
-                            savedDomains.add(new Pair(openCellInColumn, 1));
-                            openCellInColumn.removeOptionFromDomains(1);
+                        for (Cell openCellInColumn : openCellsInColumn) {
+                            Cell cellToEdit = currentOpenCellsCopy.stream().filter(x -> x.getRow() == openCellInColumn.getRow()).filter(x -> x.getCol() == openCellInColumn.getCol()).findFirst().orElse(null);
+                            assert cellToEdit != null;
+                            cellToEdit.removeOptionFromDomains(1);
                         }
                     }
                 }
             }
             //Check Row Constraint
-            if(openCell.getDomain().contains(1)){ //When column doesnt contains Option to set Tree then this Constraint has no matter
-                if(!checkedRows.contains(openCell.getRow())){
+            if (openCell.getDomain().contains(1)) { //When cell doesnt contains Option to set Tree then this Constraint has no matter
+                if (!checkedRows.contains(openCell.getRow())) {
                     checkedRows.add(openCell);
                     int rowOfCell = openCell.getRow();
                     int tentsInRow = grid.getRowTents().get(rowOfCell);
@@ -119,63 +125,81 @@ public class Backtracing{
                             .filter(x -> x.getKey().getRow() == rowOfCell)
                             .filter(x -> assignment.getAssignments().get(x.getKey()) == 1) //1 means there is a tent
                             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-                    if(tentsInRow == filteredMap.size()){
+                    if (tentsInRow == filteredMap.size()) {
                         List<Cell> openCellsInRow = currentOpenCells.stream()
                                 .filter(x -> x.getRow() == rowOfCell)
                                 .collect(Collectors.toList());
-                        for(Cell openCellInRow: openCellsInRow){
-                            savedDomains.add(new Pair(openCellInRow, 1));
-                            openCellInRow.removeOptionFromDomains(1);
+                        for (Cell openCellInRow : openCellsInRow) {
+                            Cell cellToEdit = currentOpenCellsCopy.stream().filter(x -> x.getRow() == openCellInRow.getRow()).filter(x -> x.getCol() == openCellInRow.getCol()).findFirst().orElse(null);
+                            assert cellToEdit != null;
+                            cellToEdit.removeOptionFromDomains(1);
                         }
                     }
                 }
             }
             //Check EveryTentNeedsATree Constraint (Doesnt need to be checked because it is already checked when creating the grid, and the trees position doesnt change)
 
-            //Check EveryTreeHasATent Constraint
-            if(openCell.getTrees().size() > 0){//When column doesnt contains Tree as neighbors hen this Constraint has no matter
-                for(Cell tree: openCell.getTrees()){
-                    if(!checkedTrees.contains(tree)){
-                        checkedTrees.add(tree);
-                        Map<Cell, Integer> assignedHvNeighborsOfTree = assignment.getAssignments().entrySet().stream()
-                                .filter(x -> x.getKey().getTrees().contains(tree))
-                                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-                        Map<Cell, Integer> assignedHvNeighborsOfTreeWhichAreATent = assignedHvNeighborsOfTree.entrySet().stream()
-                                .filter(x -> assignedHvNeighborsOfTree.get(x.getKey()) == 1) //1 means there is a tent
-                                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-                        if(tree.getHvNeighborsWithoutTrees().size()-1 == assignedHvNeighborsOfTree.size() && assignedHvNeighborsOfTreeWhichAreATent.size() == 0){
-                            if(openCell.getDomain().contains(0)){
-                                savedDomains.add(new Pair(openCell, 0));
-                                openCell.removeOptionFromDomains(0); // When Cell is the last open Cell next to a tree and no other cell is a tent, then this needs to be a tent
-                            }
-                            //TODO: (doesnt checks for one tent which could be for multiple trees)
-                        }
-                    }
-                }
-            }
             //Check TentsCannotBePlacedNextToEachOtherConstraint
-            if(openCell.getDomain().contains(1)){//When column doesnt contains Option to set Tree then this Constraint has no matter
+            if (openCell.getDomain().contains(1)) {//When cell doesnt contains Option to set Tree then this Constraint has no matter
                 Map<Cell, Integer> assignedHvdNeighborsWhichAreATent = assignment.getAssignments().entrySet().stream()
                         .filter(x -> x.getKey().getHvdNeighborsWithoutTrees().contains(openCell))
                         .filter(x -> assignment.getAssignments().get(x.getKey()) == 1) //1 means there is a tent
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-                if(assignedHvdNeighborsWhichAreATent.size() > 0){
-                    savedDomains.add(new Pair(openCell, 1));
-                    openCell.removeOptionFromDomains(1); //when any hvd neighbor is a tent, then this Cell cant be a tent.
+                if (assignedHvdNeighborsWhichAreATent.size() > 0) {
+                    Cell cellToEdit = currentOpenCellsCopy.stream().filter(x -> x.getRow() == openCell.getRow()).filter(x -> x.getCol() == openCell.getCol()).findFirst().orElse(null);
+                    assert cellToEdit != null;
+                    cellToEdit.removeOptionFromDomains(1); //when any hvd neighbor is a tent, then this Cell cant be a tent.
+                }
+            }
+        }
+        for(Cell openCell: currentOpenCells) {
+            //Check EveryTreeHasATent Constraint
+            if(openCell.getTrees().size() > 0){//When cell doesnt contains Tree as neighbors then this Constraint has no matter
+                for(Cell tree: openCell.getTrees()){
+                    if(!checkedTrees.contains(tree)){
+                        checkedTrees.add(tree);
+                        //get assignedNeighbors
+                        Map<Cell, Integer> assignedHvNeighborsOfTree = assignment.getAssignments().entrySet().stream()
+                                .filter(x -> x.getKey().getTrees().contains(tree))
+                                .filter(x -> x.getKey().getDomain().contains(1))
+                                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+                        //get assignedNeighbors which are a tent
+                        Map<Cell, Integer> assignedHvNeighborsOfTreeWhichAreATent = assignedHvNeighborsOfTree.entrySet().stream()
+                                .filter(x -> assignedHvNeighborsOfTree.get(x.getKey()) == 1) //1 means there is a tent
+                                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+                        //get unassignedNeighbors which can be trees
+                        List<Cell> unassignedNeighbors = currentOpenCellsCopy.stream()
+                                .filter(x -> x.getTrees().contains(tree))
+                                .collect(Collectors.toList());
+
+                        List<Cell> unassignedNeighborsWhichCanBeTrees = unassignedNeighbors.stream()
+                                .filter(x -> x.getDomain().contains(1))
+                                .collect(Collectors.toList());
+
+                        //when there is only one unassignedNeighbor left and currently is no tent set, then this neighbor must be a tent
+                        if(tree.getHvNeighborsWithoutTrees().size()-1 == assignedHvNeighborsOfTree.size() && assignedHvNeighborsOfTreeWhichAreATent.size() == 0){
+                            Cell cellToEdit = currentOpenCells.stream().filter(x -> x.getRow() == unassignedNeighbors.get(0).getRow()).filter(x -> x.getCol() == unassignedNeighbors.get(0).getCol()).findFirst().orElse(null);
+                            assert cellToEdit != null;
+                            cellToEdit.removeOptionFromDomains(0);
+                        }
+
+                        //when there is only one unassignedNeighbor who can be a tent left and currently is no tent set, then this neighbor must be a tent
+                        if(unassignedNeighborsWhichCanBeTrees.size() == 1 && assignedHvNeighborsOfTreeWhichAreATent.size() == 0){
+                            Cell cellToEdit = currentOpenCellsCopy.stream().filter(x -> x.getRow() == unassignedNeighborsWhichCanBeTrees.get(0).getRow()).filter(x -> x.getCol() == unassignedNeighborsWhichCanBeTrees.get(0).getCol()).findFirst().orElse(null);
+                            assert cellToEdit != null;
+                            cellToEdit.removeOptionFromDomains(0); // When Cell is the last open Cell next to a tree and no other cell is a tent, then this needs to be a tent
+                            if(cellToEdit.getDomainSize() == 0)
+                                System.out.println("HIER");
+                        }
+                    }
                 }
             }
 
-            if(openCell.getRow() == 1 && openCell.getCol() == 16){
-                List<Pair<Cell, Integer>> debugfilter = savedDomains.stream()
-                        .filter(x -> x.getKey().getCol() == 16)
-                        .filter(x -> x.getKey().getRow() == 1)
-                        .collect(Collectors.toList());
-                if(debugfilter.size() > 0 && openCell.getDomainSize() > 2){
-                    System.out.println(debugfilter);
-                }
-            }
-
-            if(openCell.getDomain().size() == 0){
+            Cell cellToCheck = currentOpenCellsCopy.stream().filter(x -> x.getRow() == openCell.getRow()).filter(x -> x.getCol() == openCell.getCol()).findFirst().orElse(null);
+            assert cellToCheck != null;
+            if(cellToCheck.getDomain().size() == 0){
                 //System.out.println("Z:"+openCell.getRow()+" S:"+openCell.getCol()+" FWD-Fail");
                 return false;
             }
@@ -205,9 +229,6 @@ public class Backtracing{
             //Least constraining is 0, because a 0 in a Cell doesnt bother the neighbours, but with 2 variables also not really viable
             chosenIndex = domain.indexOf(0);
         }else{
-            if(counter == 2){
-                return domain.indexOf(0);
-            }
             //Is 1 most constraining? Much better performance!
             chosenIndex = domain.indexOf(1);
             //chosenIndex = new Random().nextInt(domain.size());

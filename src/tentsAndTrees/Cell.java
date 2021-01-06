@@ -22,6 +22,14 @@ public class Cell {
         this.isNothing = false;
     }
 
+    public Cell(Cell cell){
+        this.trees = cell.getTrees();
+        this.isTree = cell.isTree;
+        this.row = cell.getRow();
+        this.col = cell.getCol();
+        this.domains = new ArrayList<>(cell.getDomain());
+    }
+
     public void removeOptionFromDomains(int option){
         this.domains.removeIf(obj -> obj == option);
     }
