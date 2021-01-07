@@ -17,7 +17,7 @@ public class Runner {
     public static void main(String[] args){
         Object[] results;
         try {
-            CSVReader.setCsvFilePath(11);
+            CSVReader.setCsvFilePath(1);
             Object[] info = CSVReader.read();
             Grid grid = new Grid((Cell[][]) info[0], (ArrayList<Integer>) info[1], (ArrayList<Integer>) info[2]);
             /**CSVReader.setCsvFilePath(13);
