@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-public class columnConstraint extends AbstractConstraint {
+public class ColumnConstraint extends AbstractConstraint {
 
     @Override
     public boolean isConsistent(Map<Cell, Integer> assignments, Grid grid) {

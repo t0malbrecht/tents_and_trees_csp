@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class rowConstraint extends AbstractConstraint {
+public class RowConstraint extends AbstractConstraint {
 
     @Override
     public boolean isConsistent(Map<Cell, Integer> assignments, Grid grid) {

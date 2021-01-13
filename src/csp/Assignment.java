@@ -11,7 +11,6 @@ import java.util.HashMap;
 public class Assignment {
     private HashMap<Cell, Integer> assignments;
     private Grid grid;
-    private ArrayList<AbstractConstraint> constraints;
 
         public Assignment(Grid grid, HashMap<Cell, Integer> assignments){
             this.assignments = assignments;
@@ -21,7 +20,6 @@ public class Assignment {
         public Assignment(Assignment assignments){
             this.assignments = new HashMap<>(assignments.assignments);
             this.grid = assignments.grid;
-            this.constraints = assignments.constraints;
         }
 
         public boolean isConsistent() {
@@ -35,19 +33,12 @@ public class Assignment {
         }
 
         public boolean isComplete(ArrayList<Cell> initialOpenCells){
+            for(AbstractConstraint constraint: grid.getConstraints()){
+                if(!constraint.isConsistent(assignments, grid)){
+                    return false;
+                }
+            }
             return initialOpenCells.size() == assignments.size();
-        }
-
-        public void setAssignments(Cell cell, Integer value){
-            this.assignments.put(cell, value);
-        }
-
-        public void removeAssignments(Cell cell){
-            this.assignments.remove(cell);
-        }
-
-        public HashMap<Cell, Integer> getAssignments(){
-            return assignments;
         }
 
     public void printField(){
@@ -80,6 +71,16 @@ public class Assignment {
             tmp++;
         }
         System.out.println();
+    }
+
+    /**
+     * Getter and Setter
+     */
+    public void setAssignments(Cell cell, Integer value){
+        this.assignments.put(cell, value);
+    }
+    public HashMap<Cell, Integer> getAssignments(){
+        return assignments;
     }
 
 }

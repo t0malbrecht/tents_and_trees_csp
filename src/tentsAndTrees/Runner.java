@@ -1,17 +1,10 @@
 package tentsAndTrees;
 
-import csp.Assignment;
-import csp.Backtracing;
+import csp.Backtracking;
 import services.CSVReader;
-import tentsAndTrees.Cell;
-import tentsAndTrees.Grid;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class Runner {
     static String[] result = new String[10];
@@ -24,8 +17,8 @@ public class Runner {
                 Object[] info = CSVReader.read();
                 Grid grid = new Grid((Cell[][]) info[0], (ArrayList<Integer>) info[1], (ArrayList<Integer>) info[2]);
 
-                Backtracing backtracing = new Backtracing(grid);
-                String counter = backtracing.start();
+                Backtracking backtracking = new Backtracking(grid);
+                String counter = backtracking.start();
                 System.out.println("Rätsel: "+i+" Anzahl an Zügen: "+counter);
             }
 

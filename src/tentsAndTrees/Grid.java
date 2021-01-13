@@ -23,22 +23,14 @@ public class Grid {
         setCellsWithTrees();
         setCellsWithoutTrees();
         //initiallySetDomains();
-        prefilterSetDomains();
+        prefilterDomainsWithArcConsistency();
         setVhdNeighborsForCells();
         openCells = new ArrayList<>(cellsWithoutTrees);
         openCells.removeIf(obj -> obj.getDomain().size() == 1);; // reduce Size of Variables
-        constraints = new AbstractConstraint[] {new columnConstraint(), new EveryTreeHasATentConstraint(), new rowConstraint(), new TentsCannotBePlacedNextToEachotherConstraint(), new EveryTentNeedsATreeConstraint()};
+        constraints = new AbstractConstraint[] {new ColumnConstraint(), new EveryTreeHasATentConstraint(), new RowConstraint(), new TentsCannotBePlacedNextToEachotherConstraint(), new EveryTentNeedsATreeConstraint()};
     }
 
-    public void removeVariablesWithOnlyOneDomain(){
-        ArrayList<Cell> filteredList = new ArrayList<>(openCells);
-        filteredList.removeIf(obj -> obj.getDomain().size() == 1);
-        for(Cell cell: filteredList){
-                openCells.remove(cell);
-        }
-    }
-
-    private void initiallySetDomains(){
+    private void initiallySetDomainsAndSetHvNeighbors(){
         for(Cell cell: cellsWithTrees){
             ArrayList<Cell> tmp = new ArrayList<>();
             int row = cell.getRow();
@@ -68,7 +60,7 @@ public class Grid {
     }
 
 
-      private void prefilterSetDomains(){
+      private void prefilterDomainsWithArcConsistency(){
               for(Cell cell: cellsWithTrees){
                   ArrayList<Cell> tmp = new ArrayList<>();
                   int row = cell.getRow();
@@ -167,40 +159,6 @@ public class Grid {
 
     public AbstractConstraint[] getConstraints() {
         return constraints;
-    }
-
-
-    /**
-     * Debug Help-Methods
-     */
-    public void printField(){
-        System.out.print("   |");
-        for(Integer column: columnsTents){
-            if(Integer.toString(column).length() == 1)
-                System.out.print(" "+column+" |");
-            else
-                System.out.print(column+" ");
-        }
-        System.out.println();
-        int tmp = 0;
-        for(Integer row : rowTents){
-            if(Integer.toString(row).length() == 1)
-                System.out.print(" "+row+" |");
-            else
-                System.out.print(row+" |");
-            for(Cell cell: cells[tmp]){
-                if(cell.isTree())
-                    System.out.print(" T |");
-                else if(cell.isTent())
-                    System.out.print(" Z |");
-                else
-                    System.out.print("   |");
-            }
-            System.out.println();
-            tmp++;
-        }
-        System.out.println("Offene Zellen: "+openCells.size());
-        System.out.println();
     }
 
 }

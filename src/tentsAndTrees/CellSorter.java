@@ -1,4 +1,4 @@
-package csp;
+package tentsAndTrees;
 
 import tentsAndTrees.Cell;
 

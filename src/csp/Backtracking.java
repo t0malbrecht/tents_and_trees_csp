@@ -1,24 +1,22 @@
 package csp;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import javafx.util.Pair;
+import tentsAndTrees.CellSorter;
 import tentsAndTrees.Cell;
 import tentsAndTrees.Grid;
 
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class Backtracing{
+public class Backtracking {
     private ArrayList<Cell> initialOpenCells;
     private ArrayList<Cell> currentOpenCells;
     private Assignment initialAssignment;
     public static int counter = 0;
-    private int depth = -1;
     private Grid grid;
 
 
-    public Backtracing(Grid grid){
+    public Backtracking(Grid grid){
         this.initialOpenCells = grid.getOpenCells();
         this.currentOpenCells = new ArrayList<>(initialOpenCells);
         initialAssignment = new Assignment(grid, new HashMap<>());
@@ -40,7 +38,6 @@ public class Backtracing{
     }
 
     public Assignment chronologicalBacktracking(Assignment currentAssigment){
-        depth++;
         //System.out.println(" Zug!!!: "+counter);
         //System.out.println(" Zug!!!: "+counter);
         //System.out.println(" Tiefe!!!: "+depth);
@@ -93,7 +90,6 @@ public class Backtracing{
             savedDomains.clear();
         }
         currentOpenCells.add(chosenVariable);
-        depth--;
         //System.out.println(" Tiefe: "+depth);
         return null;
     }

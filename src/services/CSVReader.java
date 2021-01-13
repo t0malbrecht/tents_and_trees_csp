@@ -55,7 +55,7 @@ public class CSVReader {
                 }else{
                     rowTents.add(Integer.parseInt(csvRecord.get(0)));
                     for(int i=1; i<csvRecord.size(); i++){
-                        cells[row-1][i-1] = new Cell(csvRecord.get(i).equals("t"), row-1, i-1, csvRecord.get(i).equals("Z"));
+                        cells[row-1][i-1] = new Cell(csvRecord.get(i).equals("t"), row-1, i-1);
                     }
                 }
                 row++;
