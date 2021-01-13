@@ -25,13 +25,14 @@ public class Backtracing{
         this.grid = grid;
     }
 
-    public void start(){
+    public String start(){
+        counter = 0;
         Assignment result = chronologicalBacktracking(initialAssignment);
         if(result == null){
-            System.out.println("No Solution found");
+            return "No Solution found";
         }else{
-            result.printField();
-            System.out.println("WIN"+counter);
+            //result.printField();
+            return "WIN"+counter;
             //for (Cell key : result.getAssignments().keySet()) {
             //    System.out.println(key+" "+result.getAssignments().get(key));
             //}
@@ -51,11 +52,11 @@ public class Backtracing{
         ArrayList<Pair<Cell, Integer>> savedDomains = new ArrayList<>();
         while(domain.size() > 0){
             counter++;
-            Integer chosenValue = chooseValue(domain, false);
+            Integer chosenValue = chooseValue(domain, true);
             Assignment newAssignment = new Assignment(currentAssigment);
             newAssignment.setAssignments(chosenVariable, chosenValue);
             ArrayList<Pair<Cell, Integer>> savedDomainsForwardChecking = new ArrayList<>();
-            if(newAssignment.isConsistent() && forwardChecking(newAssignment, savedDomainsForwardChecking)){
+            if(newAssignment.isConsistent()){
                 Assignment result = chronologicalBacktracking(newAssignment);
                 if(result != null){
                     return result;
@@ -107,8 +108,8 @@ public class Backtracing{
             currentOpenCellsCopy.add(newCell);
         }
 
-        reduceDomainsFromTents(currentOpenCellsCopy, assignment, savedDomainsForwardChecking);
         reduceDomainsFromNothing(currentOpenCellsCopy, assignment, savedDomainsForwardChecking);
+        reduceDomainsFromTents(currentOpenCellsCopy, assignment, savedDomainsForwardChecking);
 
         for(Cell cell: currentOpenCells){
             Cell cellToCheck = currentOpenCellsCopy.stream().filter(x -> x.getRow() == cell.getRow()).filter(x -> x.getCol() == cell.getCol()).findFirst().orElse(null);
@@ -271,7 +272,6 @@ public class Backtracing{
     public void reduceDomainsFromTents(ArrayList<Cell> currentOpenCellsCopy, Assignment assignment, ArrayList<Pair<Cell, Integer>> savedDomainsForwardChecking) {
         ArrayList<Integer> checkedColumns = new ArrayList<>();
         ArrayList<Integer> checkedRows = new ArrayList<>();
-
         for (Cell openCell : currentOpenCells) {
             //Check Column Constraint
             if (openCell.getDomain().contains(1)) { //When cell doesnt contains Option to set Tree then this Constraint has no matter
