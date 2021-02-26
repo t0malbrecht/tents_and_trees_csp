@@ -345,7 +345,7 @@ public class Backtracking {
     }
 
     public Cell chooseNonAssignedVariable(int heuristic){
-        //0 = first open Value in Array, 1= random, 2= most constraining variable (Most constrained variable isnt viable cause at beginning are all equal)
+        //0 = first open Value in Array, 1= random, 2= most constraining variable (Most constrained variable isnt viable cause at beginning are all equal) 3=small domains
         Cell chosenVariable = null;
         if(heuristic == 0){
             currentOpenCells.sort(new CellSorter());
@@ -354,7 +354,11 @@ public class Backtracking {
             chosenVariable = currentOpenCells.get(new Random().nextInt(currentOpenCells.size()));
         }else if(heuristic == 2){
             ArrayList<Cell> sortedCells = new ArrayList<>(currentOpenCells);
-            sortedCells.sort(Comparator.comparing(Cell::getHvdNeighborsWithoutTreesSize)); //Sort list based on h,v,d neighbors
+            sortedCells.sort(Comparator.comparing(Cell::getHvdNeighborsWithoutTreesSize).reversed()); //Sort list based on h,v,d neighbors
+            chosenVariable = sortedCells.get(0);
+        }else if(heuristic == 3){
+            ArrayList<Cell> sortedCells = new ArrayList<>(currentOpenCells);
+            sortedCells.sort(Comparator.comparing(Cell::getDomainSize)); //Sort list based on h,v,d neighbors
             chosenVariable = sortedCells.get(0);
         }
         currentOpenCells.remove(chosenVariable);
