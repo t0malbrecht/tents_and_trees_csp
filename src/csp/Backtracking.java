@@ -53,7 +53,7 @@ public class Backtracking {
             Assignment newAssignment = new Assignment(currentAssigment);
             newAssignment.setAssignments(chosenVariable, chosenValue);
             ArrayList<Pair<Cell, Integer>> savedDomainsForwardChecking = new ArrayList<>();
-            if(newAssignment.isConsistent()){
+            if(newAssignment.isConsistent() && forwardChecking(newAssignment, savedDomainsForwardChecking)){
                 Assignment result = chronologicalBacktracking(newAssignment);
                 if(result != null){
                     return result;
