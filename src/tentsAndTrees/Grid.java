@@ -22,8 +22,8 @@ public class Grid {
         this.rowTents = rowTents;
         setCellsWithTrees();
         setCellsWithoutTrees();
-        //initiallySetDomains();
-        prefilterDomainsWithArcConsistency();
+        initiallySetDomainsAndSetHvNeighbors();
+        //prefilterDomainsWithArcConsistency();
         setVhdNeighborsForCells();
         openCells = new ArrayList<>(cellsWithoutTrees);
         openCells.removeIf(obj -> obj.getDomain().size() == 1);; // reduce Size of Variables
@@ -49,6 +49,7 @@ public class Grid {
             vdNeighborsWithoutTrees.removeIf(Cell::isTree);
             cell.setHvNeighborsWithoutTrees(vdNeighborsWithoutTrees);
             tmp.removeIf(obj -> !obj.isTree());
+
 
             if(tmp.size() > 0){
                 cell.setTrees(tmp);

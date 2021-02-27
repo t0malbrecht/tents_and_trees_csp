@@ -216,48 +216,50 @@ public class Backtracking {
                 }
 
                     //Check EveryTreeHasATent Constraint
-                    if (openCell.getTrees().size() > 0) {//When cell doesnt contains Tree as neighbors then this Constraint has no matter
+                    if (openCell.getTrees() != null && openCell.getTrees().size() > 0) {//When cell doesnt contains Tree as neighbors then this Constraint has no matter
                         for (Cell tree : openCell.getTrees()) {
                             if (!checkedTrees.contains(tree)) {
                                 checkedTrees.add(tree);
                                 //get assignedNeighbors
-                                Map<Cell, Integer> assignedHvNeighborsOfTree = assignment.getAssignments().entrySet().stream()
-                                        .filter(x -> x.getKey().getTrees().contains(tree))
-                                        .filter(x -> x.getKey().getDomain().contains(1))
-                                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                                try {
+                                    Map<Cell, Integer> assignedHvNeighborsOfTree = assignment.getAssignments().entrySet().stream()
+                                            .filter(x -> x.getKey().getTrees().contains(tree))
+                                            .filter(x -> x.getKey().getDomain().contains(1))
+                                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-                                //get assignedNeighbors which are a tent
-                                Map<Cell, Integer> assignedHvNeighborsOfTreeWhichAreATent = assignedHvNeighborsOfTree.entrySet().stream()
-                                        .filter(x -> assignedHvNeighborsOfTree.get(x.getKey()) == 1) //1 means there is a tent
-                                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                                    //get assignedNeighbors which are a tent
+                                    Map<Cell, Integer> assignedHvNeighborsOfTreeWhichAreATent = assignedHvNeighborsOfTree.entrySet().stream()
+                                            .filter(x -> assignedHvNeighborsOfTree.get(x.getKey()) == 1) //1 means there is a tent
+                                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-                                //get unassignedNeighbors which can be trees
-                                List<Cell> unassignedNeighbors = currentOpenCellsCopy.stream()
-                                        .filter(x -> x.getTrees().contains(tree))
-                                        .collect(Collectors.toList());
+                                    List<Cell> unassignedNeighbors = currentOpenCellsCopy.stream()
+                                            .filter(x -> x.getTrees().contains(tree))
+                                            .collect(Collectors.toList());
+                                    List<Cell> unassignedNeighborsWhichCanBeTrees = unassignedNeighbors.stream()
+                                            .filter(x -> x.getDomain().contains(1))
+                                            .collect(Collectors.toList());
 
-                                List<Cell> unassignedNeighborsWhichCanBeTrees = unassignedNeighbors.stream()
-                                        .filter(x -> x.getDomain().contains(1))
-                                        .collect(Collectors.toList());
+                                    //when there is only one unassignedNeighbor left and currently is no tent set, then this neighbor must be a tent
+                                    if (unassignedNeighbors.size() == 1 && assignedHvNeighborsOfTreeWhichAreATent.size() == 0) {
+                                        if (!unassignedNeighbors.get(0).getDomain().contains(0))
+                                            continue;
+                                        savedDomainsForwardChecking.add(new Pair(unassignedNeighbors.get(0), 0));
+                                        Cell cellToEdit = currentOpenCellsCopy.stream().filter(x -> x.getRow() == unassignedNeighbors.get(0).getRow()).filter(x -> x.getCol() == unassignedNeighbors.get(0).getCol()).findFirst().orElse(null);
+                                        assert cellToEdit != null;
+                                        cellToEdit.removeOptionFromDomains(0);
+                                    }
 
-                                //when there is only one unassignedNeighbor left and currently is no tent set, then this neighbor must be a tent
-                                if (unassignedNeighbors.size() == 1 && assignedHvNeighborsOfTreeWhichAreATent.size() == 0) {
-                                    if (!unassignedNeighbors.get(0).getDomain().contains(0))
-                                        continue;
-                                    savedDomainsForwardChecking.add(new Pair(unassignedNeighbors.get(0), 0));
-                                    Cell cellToEdit = currentOpenCellsCopy.stream().filter(x -> x.getRow() == unassignedNeighbors.get(0).getRow()).filter(x -> x.getCol() == unassignedNeighbors.get(0).getCol()).findFirst().orElse(null);
-                                    assert cellToEdit != null;
-                                    cellToEdit.removeOptionFromDomains(0);
-                                }
+                                    //when there is only one unassignedNeighbor who can be a tent left and currently is no tent set, then this neighbor must be a tent
+                                    if (unassignedNeighborsWhichCanBeTrees.size() == 1 && assignedHvNeighborsOfTreeWhichAreATent.size() == 0) {
+                                        if (!unassignedNeighbors.get(0).getDomain().contains(0))
+                                            continue;
+                                        savedDomainsForwardChecking.add(new Pair(unassignedNeighbors.get(0), 0));
+                                        Cell cellToEdit = currentOpenCellsCopy.stream().filter(x -> x.getRow() == unassignedNeighborsWhichCanBeTrees.get(0).getRow()).filter(x -> x.getCol() == unassignedNeighborsWhichCanBeTrees.get(0).getCol()).findFirst().orElse(null);
+                                        assert cellToEdit != null;
+                                        cellToEdit.removeOptionFromDomains(0); // When Cell is the last open Cell next to a tree and no other cell is a tent, then this needs to be a tent
+                                    }
+                                }catch(Exception exception){
 
-                                //when there is only one unassignedNeighbor who can be a tent left and currently is no tent set, then this neighbor must be a tent
-                                if (unassignedNeighborsWhichCanBeTrees.size() == 1 && assignedHvNeighborsOfTreeWhichAreATent.size() == 0) {
-                                    if (!unassignedNeighbors.get(0).getDomain().contains(0))
-                                        continue;
-                                    savedDomainsForwardChecking.add(new Pair(unassignedNeighbors.get(0), 0));
-                                    Cell cellToEdit = currentOpenCellsCopy.stream().filter(x -> x.getRow() == unassignedNeighborsWhichCanBeTrees.get(0).getRow()).filter(x -> x.getCol() == unassignedNeighborsWhichCanBeTrees.get(0).getCol()).findFirst().orElse(null);
-                                    assert cellToEdit != null;
-                                    cellToEdit.removeOptionFromDomains(0); // When Cell is the last open Cell next to a tree and no other cell is a tent, then this needs to be a tent
                                 }
                             }
                         }
